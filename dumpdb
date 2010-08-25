@@ -1,0 +1,60 @@
+#!/usr/bin/ruby
+require 'yaml'
+require 'getoptlong'
+require 'rdoc/usage'
+
+def exec(cmd)
+  ret = system(cmd)
+
+  raise "command failed: #{cmd.inspect}" unless ret
+end
+
+opts = GetoptLong.new(
+  [ '--load', '-l', GetoptLong::NO_ARGUMENT ]
+)
+
+# defaults
+load = false
+
+opts.each do |opt, arg|
+  case opt
+    when '--load'
+      load = true
+  end
+end
+
+system = ARGV.shift
+
+if system.nil? || system.empty?
+  raise "Error: Specify target: Usage: dumpdb <system>"
+end
+
+date = Time.now.strftime("%Y-%m-%dT%H:%M:%S")
+
+c = YAML.load_file(".dumpdb")
+
+raise "config file not correct" unless c.respond_to? :[]
+
+dump_folder = c["folder"]
+raise "no dump folder defined, key 'folder'" unless dump_folder
+
+if system == "local"
+  puts "IMPLEMENT ME"
+else
+  config = c["systems"][system]
+  raise "config for system #{system} not found" unless config
+
+  ssh = config["ssh"] or raise "ssh not defined"
+  db = config["db"] or raise "db not defined"
+
+  if load
+    local_db = config['local_db'] or raise "local_db not defined"
+  end
+  dump_file = "#{dump_folder}/#{system}-#{date}.sql"
+  exec "#{ssh} mysqldump #{db} > #{dump_file}"
+
+  if load
+    exec "mysql #{local_db} < #{dump_file}"
+    puts "loaded"
+  end
+end
