@@ -1,0 +1,9 @@
+folder: path/to/dump/folder
+systems:
+  production:
+    ssh: ssh -i foobar user@anotherhoast
+    db: name_of_db
+    local_db: local_db_for_load
+  devel:
+    ssh: ssh yetanotherhost
+    db: another_db
