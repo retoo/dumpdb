@@ -1,0 +1,11 @@
+Usage:
+    # create configuration
+    cp config-example /path/to/project/root/.dumpdb
+    ... edit file ..
+
+    # dump and copy a database
+    dumpdb production
+    ls database-dumps
+
+    # dump and load another database
+    dumpdb --load preview
